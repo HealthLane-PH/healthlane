@@ -1,5 +1,5 @@
 "use client";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, MotionProps, AnimatePresence } from "framer-motion";
 
 interface ConfirmDeleteModalProps {
   isOpen: boolean;
@@ -27,16 +27,23 @@ export default function ConfirmDeleteModal({
       ? `Are you sure you want to delete ${itemName}?`
       : "Are you sure you want to delete this item?");
 
+  const MotionDiv = motion.div as React.ComponentType<
+    React.HTMLAttributes<HTMLDivElement> & MotionProps
+  >;
+  const MotionImg = motion.img as React.ComponentType<
+    React.ImgHTMLAttributes<HTMLImageElement> & MotionProps
+  >;
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
+        <MotionDiv
           className="fixed inset-0 bg-black/50 backdrop-blur-[1px] flex justify-center items-end sm:items-center z-[9999]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <motion.div
+          <MotionDiv
             className="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-xl p-5 sm:p-6 shadow-lg"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
@@ -57,17 +64,16 @@ export default function ConfirmDeleteModal({
               <button
                 onClick={onConfirm}
                 disabled={loading}
-                className={`px-4 py-2 rounded-md text-white transition ${
-                  loading
+                className={`px-4 py-2 rounded-md text-white transition ${loading
                     ? "bg-gray-300 cursor-not-allowed"
                     : "bg-[var(--color-brandRed)] hover:bg-[var(--color-brandRedhover)]"
-                }`}
+                  }`}
               >
                 {loading ? "Deleting..." : "Delete"}
               </button>
             </div>
-          </motion.div>
-        </motion.div>
+          </MotionDiv>
+        </MotionDiv>
       )}
     </AnimatePresence>
   );

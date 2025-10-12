@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { db } from "@/firebaseConfig";
+import { db } from "../../../firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 import { Hospital, User2, Users } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, MotionProps, AnimatePresence } from "framer-motion";
 
 export default function OverviewPage() {
   const [stats, setStats] = useState({
@@ -13,6 +13,13 @@ export default function OverviewPage() {
     patients: 0,
   });
   const [loading, setLoading] = useState(true);
+
+  const MotionDiv = motion.div as React.ComponentType<
+    React.HTMLAttributes<HTMLDivElement> & MotionProps
+  >;
+  const MotionImg = motion.img as React.ComponentType<
+    React.ImgHTMLAttributes<HTMLImageElement> & MotionProps
+  >;
 
   useEffect(() => {
     const fetchCounts = async () => {
@@ -77,7 +84,7 @@ export default function OverviewPage() {
               {loading ? (
                 <div className="h-8 w-8 border-2 border-gray-300 border-t-primary rounded-full animate-spin mb-1" />
               ) : (
-                <motion.h2
+                <MotionDiv
                   key={card.value} // re-animate when value changes
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -85,7 +92,7 @@ export default function OverviewPage() {
                   className="text-3xl font-semibold text-gray-900"
                 >
                   <AnimatedNumber value={card.value} />
-                </motion.h2>
+                </MotionDiv>
               )}
               <p className="text-gray-600 font-medium mt-1">{card.label}</p>
             </div>

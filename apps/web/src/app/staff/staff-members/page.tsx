@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { db, auth, storage } from "@/firebaseConfig";
+import { motion, MotionProps, AnimatePresence } from "framer-motion";
+import { db, auth, storage } from "../../../firebaseConfig";
 import {
   collection,
   onSnapshot,
@@ -71,6 +71,13 @@ export default function StaffPage() {
   const [activeStatus, setActiveStatus] = useState<StatusType>("All");
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
+
+  const MotionDiv = motion.div as React.ComponentType<
+    React.HTMLAttributes<HTMLDivElement> & MotionProps
+  >;
+  const MotionImg = motion.img as React.ComponentType<
+    React.ImgHTMLAttributes<HTMLImageElement> & MotionProps
+  >;
 
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
@@ -628,13 +635,13 @@ export default function StaffPage() {
       {/* Add/Edit Modal */}
       <AnimatePresence>
         {isModalOpen && (
-          <motion.div
+          <MotionDiv
             className="fixed inset-0 bg-black/40 flex justify-center items-end sm:items-center z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <motion.div
+            <MotionDiv
               className="bg-white w-full sm:max-w-lg rounded-t-2xl sm:rounded-xl p-4 sm:p-6 max-h-[90vh] overflow-y-auto"
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
@@ -890,8 +897,8 @@ export default function StaffPage() {
 
               </form>
 
-            </motion.div>
-          </motion.div>
+            </MotionDiv>
+          </MotionDiv>
         )}
       </AnimatePresence>
     </div>
