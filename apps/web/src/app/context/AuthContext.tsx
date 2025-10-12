@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
-import { auth, db } from "@/firebaseConfig";
+import { auth, db } from "../../firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 
 interface AuthContextType {
@@ -19,7 +19,15 @@ const AuthContext = createContext<AuthContextType>({
   logout: async () => {},
 });
 
-export const useAuth = () => useContext(AuthContext);
+// ✅ Add runtime guard so useAuth never runs on server accidentally
+export const useAuth = () => {
+  if (typeof window === "undefined") {
+    // Prevents "reading useContext of null" during SSR
+    console.warn("useAuth() was called on the server — returning defaults.");
+    return { user: null, role: null, loading: false, logout: async () => {} };
+  }
+  return useContext(AuthContext);
+};
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -27,16 +35,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // ✅ Wrap in browser check for extra safety
+    if (typeof window === "undefined") return;
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser);
 
-        // Look up role from Firestore
-        const docRef = doc(db, "users", firebaseUser.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setRole(docSnap.data().role);
-        } else {
+        try {
+          const docRef = doc(db, "users", firebaseUser.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setRole(docSnap.data().role);
+          } else {
+            setRole(null);
+          }
+        } catch (err) {
+          console.error("Error fetching user role:", err);
           setRole(null);
         }
       } else {
@@ -50,9 +65,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = async () => {
-    await signOut(auth);
-    setUser(null);
-    setRole(null);
+    try {
+      await signOut(auth);
+    } finally {
+      setUser(null);
+      setRole(null);
+    }
   };
 
   return (
