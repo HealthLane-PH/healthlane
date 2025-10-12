@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Montserrat } from "next/font/google";
 import RootWrapper from "./RootWrapper";
-import { ToastConfig } from "@/components/ToastConfig";
+import { ToastConfig } from "../components/ToastConfig";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
