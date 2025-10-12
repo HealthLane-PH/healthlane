@@ -14,7 +14,7 @@ import {
   where,
 } from "firebase/firestore";
 import { hashToken } from "../../utils/hashToken";
-import { notify } from "@/components/ToastConfig";
+import { notify } from "../../components/ToastConfig";
 
 export default function SetPasswordInner() {
   const searchParams = useSearchParams();
