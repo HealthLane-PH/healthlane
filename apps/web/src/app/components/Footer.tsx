@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { FaTiktok, FaFacebookF, FaInstagram } from "react-icons/fa";
 import Image from "next/image";
 
 const Footer = () => {
@@ -8,45 +7,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-5 gap-10 items-start">
 
         {/* Logo / Address */}
-        <div>
-          <Image
-            src="/images/healthlane-logo-white.png"
-            alt="HealthLane Logo"
-            width={200}
-            height={86}
-            className="h-12 w-auto mb-4"
-          />
-          <p className="text-xs leading-6">
-            Naga City, Camarines Sur
-          </p>
-          {/* Social icons */}
-          <div className="flex space-x-4 mt-4">
-            <a
-              href="#"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-[#008F32] transition-colors"
-            >
-              <FaTiktok className="h-4 w-4" />
-            </a>
-            <a
-              href="#"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-[#008F32] transition-colors"
-            >
-              <FaFacebookF className="h-4 w-4" />
-            </a>
-            <a
-              href="#"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-[#008F32] transition-colors"
-            >
-              <FaInstagram className="h-4 w-4" />
-            </a>
-          </div>
-        </div>
+ 
 
         {/* Quick Links - only visible on desktop */}
         <div className="hidden md:block">
