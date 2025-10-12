@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { db } from "@/firebaseConfig";
+import { motion, MotionProps, AnimatePresence } from "framer-motion";
+import { db } from "../../../firebaseConfig";
 import {
   addDoc,
   collection,
@@ -20,17 +20,25 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
-import { auth } from "@/firebaseConfig";
-import { storage } from "@/firebaseConfig";
+import { auth } from "../../../firebaseConfig";
+import { storage } from "../../../firebaseConfig";
 import { Pencil, Trash2, ZoomIn } from "lucide-react";
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
 import { format } from "date-fns";
 
 
 
+
 // Put this right after your imports, before your component starts
 const DEFAULT_CITY = "Naga City";
 const DEFAULT_PROVINCE = "Camarines Sur";
+
+const MotionDiv = motion.div as React.ComponentType<
+  React.HTMLAttributes<HTMLDivElement> & MotionProps
+>;
+const MotionImg = motion.img as React.ComponentType<
+  React.ImgHTMLAttributes<HTMLImageElement> & MotionProps
+>;
 
 
 // ---------- Types ----------
@@ -887,7 +895,7 @@ export default function ClinicsPage() {
 
         <AnimatePresence>
           {open && (
-            <motion.div
+            <MotionDiv
               key="dropdown"
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
@@ -918,7 +926,7 @@ export default function ClinicsPage() {
                   </div>
                 </button>
               ))}
-            </motion.div>
+            </MotionDiv>
           )}
         </AnimatePresence>
       </div>
@@ -1215,13 +1223,13 @@ export default function ClinicsPage() {
       {/* Add/Edit Modal */}
       <AnimatePresence>
         {isModalOpen && (
-          <motion.div
+          <MotionDiv
             className="fixed inset-0 bg-black/40 flex justify-center items-end sm:items-center z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <motion.div
+            <MotionDiv
               className="bg-white w-full sm:max-w-lg rounded-t-2xl sm:rounded-xl p-4 sm:p-6 max-h-[90vh] overflow-y-auto"
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
@@ -1832,22 +1840,22 @@ export default function ClinicsPage() {
                 )}
 
               </form>
-            </motion.div>
-          </motion.div>
+            </MotionDiv>
+          </MotionDiv>
         )}
       </AnimatePresence>
 
       {/* Zoom Modal Overlay */}
       <AnimatePresence>
         {zoomedImage && (
-          <motion.div
+          <MotionDiv
             className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[999]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setZoomedImage(null)}
           >
-            <motion.img
+            <MotionImg
               src={zoomedImage}
               alt="Zoomed PRC ID"
               className="max-h-[90vh] max-w-[90vw] rounded-lg shadow-2xl"
@@ -1855,7 +1863,7 @@ export default function ClinicsPage() {
               animate={{ scale: 1 }}
               exit={{ scale: 0.8 }}
             />
-          </motion.div>
+          </MotionDiv>
         )}
       </AnimatePresence>
 

@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { db, storage } from "@/firebaseConfig";
+import { motion, MotionProps, AnimatePresence } from "framer-motion";
+import { db, storage } from "../../../firebaseConfig";
 import {
     addDoc,
     collection,
@@ -13,14 +13,19 @@ import {
     uploadBytesResumable,
     getDownloadURL,
 } from "firebase/storage";
-import { notify } from "@/components/ToastConfig";
+import { notify } from "../../../components/ToastConfig";
 
 
 
 // Default city & province
 const DEFAULT_CITY = "Naga City";
 const DEFAULT_PROVINCE = "Camarines Sur";
-
+const MotionDiv = motion.div as React.ComponentType<
+  React.HTMLAttributes<HTMLDivElement> & MotionProps
+>;
+const MotionImg = motion.img as React.ComponentType<
+  React.ImgHTMLAttributes<HTMLImageElement> & MotionProps
+>;
 
 
 // Spinner component
@@ -282,7 +287,7 @@ export default function DoctorRegisterPage() {
 
                         <AnimatePresence>
                             {openSection === "doctor" && (
-                                <motion.div
+                                <MotionDiv
                                     initial={{ opacity: 0, height: 0 }}
                                     animate={{ opacity: 1, height: "auto" }}
                                     exit={{ opacity: 0, height: 0 }}
@@ -467,7 +472,7 @@ export default function DoctorRegisterPage() {
                                     </div>
 
 
-                                </motion.div>
+                                </MotionDiv>
                             )}
                         </AnimatePresence>
                     </div>
@@ -487,7 +492,7 @@ export default function DoctorRegisterPage() {
 
                         <AnimatePresence>
                             {openSection === "clinic" && (
-                                <motion.div
+                                <MotionDiv
                                     initial={{ opacity: 0, height: 0 }}
                                     animate={{ opacity: 1, height: "auto" }}
                                     exit={{ opacity: 0, height: 0 }}
@@ -550,7 +555,7 @@ export default function DoctorRegisterPage() {
                                     >
                                         + Add another location
                                     </button>
-                                </motion.div>
+                                </MotionDiv>
                             )}
                         </AnimatePresence>
                     </div>
@@ -604,13 +609,13 @@ export default function DoctorRegisterPage() {
             {/* Consent Form Modal */}
             <AnimatePresence>
                 {showConsentModal && (
-                    <motion.div
+                    <MotionDiv
                         className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                     >
-                        <motion.div
+                        <MotionDiv
                             className="bg-white rounded-lg shadow-lg max-w-md w-full p-6"
                             initial={{ scale: 0.9 }}
                             animate={{ scale: 1 }}
@@ -629,8 +634,8 @@ export default function DoctorRegisterPage() {
                                     Close
                                 </button>
                             </div>
-                        </motion.div>
-                    </motion.div>
+                        </MotionDiv>
+                    </MotionDiv>
                 )}
             </AnimatePresence>
 

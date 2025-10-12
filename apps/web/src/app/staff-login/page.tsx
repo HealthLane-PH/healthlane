@@ -5,7 +5,7 @@ import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
 } from "firebase/auth";
-import { auth, db } from "@/firebaseConfig";
+import { auth, db } from "../../firebaseConfig";
 import {
   collection,
   query,

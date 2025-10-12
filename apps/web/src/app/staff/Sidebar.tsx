@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut, User } from "firebase/auth";
-import { auth, db } from "@/firebaseConfig";
+import { auth, db } from "../../firebaseConfig";
 import { useEffect, useState } from "react";
 import {
   doc,
