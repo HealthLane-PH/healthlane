@@ -43,6 +43,9 @@
       ],
       "@healthlane/theme/*": [
         "../../packages/theme/*"
+      ],
+      "@healthlane/auth": [
+        "../../packages/auth/src"
       ]
     }
   },

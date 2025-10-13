@@ -10,7 +10,9 @@
     "build": "turbo run build --filter=web",
     "lint": "turbo run lint --filter=web",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types --filter=web"
+    "check-types": "turbo run check-types --filter=web",
+    "vercel-build": "npm install --legacy-peer-deps && next build",
+    "preinstall": "npm install -w packages/auth"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
