@@ -3,10 +3,15 @@ import { useState, useEffect } from "react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import Image from "next/image";
+import Modal from "./Modal";
+import SignupPage from "../auth/signup/page"; // reuse your existing signup form
+
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isSignupOpen, setIsSignupOpen] = useState(false); // 👈 new state
+
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 0);
@@ -57,12 +62,12 @@ export default function Header() {
           </Link>
 
           <div className="flex items-center space-x-3">
-            <Link
-              href="/signup"
+            <button
+              onClick={() => setIsSignupOpen(true)}
               className="text-sm font-semibold text-[#1bae69] border border-[#1bae69] rounded-full px-4 py-1.5 hover:bg-[#1bae69] hover:text-white transition-all duration-200"
             >
               Sign Up
-            </Link>
+            </button>
             <Link
               href="/login"
               className="text-sm font-semibold text-white bg-[#1bae69] rounded-full px-4 py-1.5 hover:bg-[#169a5f] transition-all duration-200"
@@ -118,12 +123,15 @@ export default function Header() {
           >
             Contact
           </Link>
-          <Link
-            href="/signup"
-            className="block text-sm font-semibold text-[#1bae69] border border-[#1bae69] rounded-full px-4 py-2 text-center hover:bg-[#1bae69] hover:text-white transition-all duration-200 mt-4"
+          <button
+            onClick={() => {
+              setMobileOpen(false);
+              setIsSignupOpen(true);
+            }}
+            className="block w-full text-sm font-semibold text-[#1bae69] border border-[#1bae69] rounded-full px-4 py-2 text-center hover:bg-[#1bae69] hover:text-white transition-all duration-200 mt-4"
           >
             Sign Up
-          </Link>
+          </button>
           <Link
             href="/login"
             className="block text-sm font-semibold text-white bg-[#1bae69] rounded-full px-4 py-2 text-center hover:bg-[#169a5f] transition-all duration-200"
@@ -132,6 +140,12 @@ export default function Header() {
           </Link>
         </nav>
       </div>
+
+      {/* Signup Modal */}
+      <Modal isOpen={isSignupOpen} onClose={() => setIsSignupOpen(false)}>
+        <SignupPage onClose={() => setIsSignupOpen(false)} />
+      </Modal>
+
     </header>
   );
 }

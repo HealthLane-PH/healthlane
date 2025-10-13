@@ -30,20 +30,18 @@
         "name": "next"
       }
     ],
-    "baseUrl": "src",
+    "baseUrl": ".",
     "paths": {
       "@/*": [
-        "./src/*"
+        "src/*"
       ],
-      // 👇 new alias for shared UI components
-      "@healthlane/ui": [
+      "@healthlane/ui/*": [
         "../../packages/ui/*"
       ],
-      // (optional) prep for future packages, e.g. shared auth or theme
-      "@healthlane/auth": [
+      "@healthlane/auth/*": [
         "../../packages/auth/*"
       ],
-      "@healthlane/theme": [
+      "@healthlane/theme/*": [
         "../../packages/theme/*"
       ]
     }

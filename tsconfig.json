@@ -6,6 +6,8 @@
   ],
   "compilerOptions": {
     "target": "ES2017",
+    "module": "ESNext",                      // 👈 add this
+    "moduleResolution": "node",              // 👈 this now works properly
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,

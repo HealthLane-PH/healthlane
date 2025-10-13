@@ -66,7 +66,7 @@ export default function ConfirmDeleteModal({
                 disabled={loading}
                 className={`px-4 py-2 rounded-md text-white transition ${loading
                     ? "bg-gray-300 cursor-not-allowed"
-                    : "bg-[var(--color-brandRed)] hover:bg-[var(--color-brandRedhover)]"
+                    : "bg-brandRed hover:bg-brandRedhover"
                   }`}
               >
                 {loading ? "Deleting..." : "Delete"}
