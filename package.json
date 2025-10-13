@@ -27,7 +27,8 @@
     "react-native-web": "0.19.12"
   },
   "engines": {
-    "node": ">=18"
+    "node": "20.x",
+    "pnpm": "9.7.x"
   },
   "resolutions": {
     "react": "18.3.1",
