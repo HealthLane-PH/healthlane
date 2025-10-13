@@ -16,6 +16,11 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true,
-    "types": ["react", "react-dom", "react-native"]
+    "types": ["react", "react-dom", "react-native"],
+    "baseUrl": ".",
+    "paths": {
+      "@healthlane/ui/*": ["packages/ui/*"],
+      "@healthlane/auth/*": ["packages/auth/*"]
+    }
   }
 }
