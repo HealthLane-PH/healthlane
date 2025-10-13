@@ -1,0 +1,26 @@
+# Ignore local build outputs and dependency folders
+node_modules
+.next
+dist
+build
+coverage
+
+# Ignore local config and environment files
+.env.local
+.env.development
+.env.production
+
+# Ignore editor and system files
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# Ignore logs and caches
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.vercel/cache
+
+# Ignore anything inside apps/mobile if you’re only deploying web for now
+apps/mobile
