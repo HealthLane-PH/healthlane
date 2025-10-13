@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #1bae69;
+  --color-primaryDark: #169a5f;
+  --color-grayDark: #1B1B1B;
+  --color-grayMid: #333333;
+  --color-grayBg: #F8F8F8;
+  --color-grayLight: #EEEEEE;
+  --color-accentOrange: #FF8800;
+  --color-accentYellow: #FFC900;
+  --color-accentBlue: #0081BF;
+  --color-accentRed: #FF5724;
+  --color-brandRed: #F36D60;
+  --color-brandRedhover: #FF9999;
+}
+
+
+/* Optional global body styling */
+body {
+  @apply bg-[#F8F8F8];
+}
+
+/* Hide Next.js DevTools button in dev */
+#next-logo {
+  display: none !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* Global fonts */
+@layer base {
+  :root {
+    --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    @apply ring-2 ring-primary/40 outline-none;
+  }
+}
+
+
+/* Form inputs */
+.input {
+  @apply w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:outline-none text-sm;
+}
+
+html, body {
+  overflow-x: hidden;
+}
+
+button, [role="button"], select, [type="submit"], [type="button"] {
+  cursor: pointer;
+}
+
+:root {
+  --toastify-color-success: #1bae69;
+  --toastify-color-error: #d32f2f;
+  --toastify-color-info: #1e88e5;
+  --toastify-toast-background: #ffffff;
+  --toastify-font-family: 'Montserrat', sans-serif;
+}

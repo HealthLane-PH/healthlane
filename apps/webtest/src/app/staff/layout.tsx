@@ -10,11 +10,11 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="flex bg-gray-50 h-screen overflow-hidden">
+    <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
       <aside
-        className={`fixed md:relative top-0 left-0 h-screen w-64 bg-[#272a2b] text-white flex flex-col justify-between z-40 transform transition-transform duration-300
-      ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
+        className={`fixed md:static top-0 left-0 h-full w-64 bg-[#272a2b] text-white flex flex-col justify-between z-40 transform transition-transform duration-300
+        ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
       >
         <Sidebar onClose={() => setIsOpen(false)} />
       </aside>
@@ -29,7 +29,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
       )}
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-y-auto h-screen">
+      <div className="flex-1 flex flex-col">
         {/* Mobile header */}
         <header className="md:hidden flex items-center justify-between bg-white shadow-sm p-4 sticky top-0 z-20">
           <button
@@ -49,8 +49,8 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
         </header>
 
         <main className="flex-1 w-full bg-gray-50 p-4 md:p-8">{children}</main>
+
       </div>
     </div>
-
   );
 }

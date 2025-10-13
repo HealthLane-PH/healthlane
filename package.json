@@ -1,24 +1,32 @@
 {
   "name": "healthlane",
   "private": true,
-  "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
-  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+ "scripts": {
+  "dev": "turbo run dev --filter=web",
+  "build": "turbo run build --filter=web",
+  "lint": "turbo run lint --filter=web",
+  "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+  "check-types": "turbo run check-types --filter=web"
+},
   "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.3",
+    "cross-env": "^10.1.0",
     "prettier": "^3.6.2",
     "turbo": "^2.5.8",
     "typescript": "5.9.2"
   },
+  "dependencies": {
+    "nativewind": "2.0.11",
+    "react-native": "0.74.3",
+    "react-native-web": "0.19.12"
+  },
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "npm@10.9.3",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
+  "packageManager": "npm@10.9.3"
 }

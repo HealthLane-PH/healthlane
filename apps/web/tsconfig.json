@@ -1,4 +1,5 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "ES2017",
     "lib": [
@@ -18,6 +19,7 @@
     //"jsx": "preserve",
     "incremental": true,
     "jsx": "preserve",
+    "allowSyntheticDefaultImports": true,
     "types": [
       "react",
       "react-dom"
@@ -32,6 +34,17 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      // 👇 new alias for shared UI components
+      "@healthlane/ui": [
+        "../../packages/ui/*"
+      ],
+      // (optional) prep for future packages, e.g. shared auth or theme
+      "@healthlane/auth": [
+        "../../packages/auth/*"
+      ],
+      "@healthlane/theme": [
+        "../../packages/theme/*"
       ]
     }
   },
@@ -40,7 +53,6 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "next.config.mjs",
     "next.config.mjs"
   ],
   "exclude": [
