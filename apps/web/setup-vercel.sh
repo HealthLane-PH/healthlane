@@ -1,18 +1,18 @@
 #!/bin/bash
-echo "🔧 Forcing correct pnpm & Node versions..."
 set -e
+echo "🔧 Forcing correct pnpm & Node versions..."
 
 corepack enable
 corepack prepare pnpm@9.7.1 --activate
 
-# Tell the shell to use the newly prepared pnpm binary
+# Ensure the newly prepared pnpm binary takes priority
 export PATH="$(corepack where pnpm)/bin:$PATH"
 
 echo "✅ Using pnpm version:"
-pnpm -v
+pnpm -v || true
 
 echo "✅ Using Node version:"
-node -v
+node -v || true
 
-# Run the actual install using the correct pnpm
+# Run install using correct pnpm
 pnpm install --frozen-lockfile=false
