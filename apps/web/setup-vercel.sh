@@ -5,14 +5,17 @@ echo "🔧 Forcing correct pnpm & Node versions..."
 corepack enable
 corepack prepare pnpm@9.7.1 --activate
 
-# Ensure the newly prepared pnpm binary takes priority
+# Ensure correct binary paths
 export PATH="$(corepack where pnpm)/bin:$PATH"
 
 echo "✅ Using pnpm version:"
-pnpm -v || true
+pnpm -v
 
 echo "✅ Using Node version:"
-node -v || true
+node -v
 
-# Run install using correct pnpm
-pnpm install --frozen-lockfile=false
+# Fix for 'env: node: File name too long' bug
+export NODE=$(which node)
+
+echo "📦 Installing dependencies..."
+pnpm install --frozen-lockfile=false --node-path="$NODE"
