@@ -1,75 +1,175 @@
 "use client";
+
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { auth } from "@/firebaseConfig";
+import { notify } from "@/components/ToastConfig";
+import { signInWithEmailAndPassword, signOut, sendEmailVerification } from "firebase/auth";
+import GoogleIcon from "@/app/components/GoogleIcon";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "@healthlane/auth";
 
-export default function SignupPage() {
-  const { signup, googleSignIn } = useAuth();
+
+export default function LoginPage() {
+  const router = useRouter();
+  const { googleSignIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [first, setFirst] = useState("");
-  const [last, setLast] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
-  const handleSignup = async (e: React.FormEvent) => {
+
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    await signup(email, password);
-    alert("Account created!");
+    setLoading(true);
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, normalizedEmail, password);
+      const user = userCredential.user;
+
+      if (!user.emailVerified) {
+        await sendEmailVerification(user);
+        notify.success("Verification email sent. Please check your inbox.");
+        await signOut(auth);
+        setLoading(false);
+        return;
+      }
+
+      notify.success("Login successful! Redirecting...");
+      router.push("/dashboard");
+    } catch (error: any) {
+      const message =
+        error.code === "auth/user-not-found"
+          ? "No account found for this email."
+          : error.code === "auth/wrong-password"
+            ? "Incorrect password."
+            : "Login failed. Please try again.";
+      notify.error(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleGoogle = async () => {
-    await googleSignIn();
-    alert("Signed in with Google!");
+  const handleResendVerification = async () => {
+    try {
+      if (auth.currentUser) {
+        await sendEmailVerification(auth.currentUser);
+        notify.success("Verification email resent!");
+      } else {
+        notify.warning("Please log in first to resend verification.");
+      }
+    } catch (error: any) {
+      notify.error("Could not resend verification email. Try again later.");
+    }
   };
+
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+    <div className="flex justify-center items-center min-h-screen bg-gray-50">
       <form
-        onSubmit={handleSignup}
-        className="bg-white p-8 rounded-xl shadow-md w-full max-w-md space-y-4"
+        onSubmit={handleLogin}
+        className="bg-white shadow-md rounded-2xl px-8 pt-6 pb-8 w-full max-w-md"
       >
-        <h1 className="text-2xl font-semibold text-center text-gray-800">
-          Doctor Sign Up
-        </h1>
-        <input
-          value={first}
-          onChange={(e) => setFirst(e.target.value)}
-          placeholder="First name"
-          className="border w-full p-2 rounded-md"
-        />
-        <input
-          value={last}
-          onChange={(e) => setLast(e.target.value)}
-          placeholder="Last name"
-          className="border w-full p-2 rounded-md"
-        />
-        <input
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          type="email"
-          className="border w-full p-2 rounded-md"
-        />
-        <input
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          type="password"
-          className="border w-full p-2 rounded-md"
-        />
+        <h2 className="text-center text-2xl font-semibold mb-6 text-gray-800">
+          Log In to Your Account
+        </h2>
+
+        <div className="mb-4">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1bae69]"
+          />
+        </div>
+
+        <div className="mb-6">
+          {/* Password */}
+          <div className="relative mb-6">
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1bae69] pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((p) => !p)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+            </button>
+          </div>
+
+        </div>
 
         <button
           type="submit"
-          className="bg-[#1bae69] text-white w-full py-2 rounded-md hover:bg-[#169a5f]"
+          disabled={loading}
+          className={`w-full py-2 rounded-md text-white font-semibold ${loading ? "bg-gray-400" : "bg-[#1bae69] hover:bg-[#169a5f]"
+            } transition-colors`}
         >
-          Create Account
+          {loading ? "Logging in..." : "Log In"}
         </button>
 
+        <div className="my-4 flex items-center">
+          <hr className="flex-grow border-gray-300" />
+          <span className="text-gray-400 text-xs mx-2">or</span>
+          <hr className="flex-grow border-gray-300" />
+        </div>
+
+        {/* 🔹 Google Login Button (placeholder for now) */}
         <button
           type="button"
-          onClick={handleGoogle}
-          className="w-full border py-2 rounded-md hover:bg-gray-100"
+          onClick={async () => {
+            try {
+              setGoogleLoading(true);
+              await googleSignIn();           // no role on login: first-time users default to "patient"
+              notify.success("You are now signed in.");
+              router.push("/dashboard");      // guard will send to the right subpage
+            } catch (err) {
+              notify.error("Google sign-in failed. Please try again.");
+            } finally {
+              setGoogleLoading(false);
+            }
+          }}
+          className="w-full border border-gray-300 rounded-md py-2 flex items-center justify-center space-x-2 hover:bg-gray-50"
         >
-          Continue with Google
+          <GoogleIcon size={18} />
+          <span>Sign in with Google</span>
         </button>
+
+
+        <p className="text-center text-xs text-gray-500 mt-4">
+          Don’t have an account?{" "}
+          <a
+            href="/auth/patients/signup"
+            className="text-[#1bae69] font-medium hover:underline"
+          >
+            Sign up here
+          </a>
+        </p>
+
+        <p className="text-center text-xs text-gray-500 mt-2">
+          Didn’t receive the verification email?{" "}
+          <button
+            type="button"
+            onClick={handleResendVerification}
+            className="text-[#1bae69] font-medium hover:underline"
+          >
+            Resend verification
+          </button>
+        </p>
+
       </form>
     </div>
   );

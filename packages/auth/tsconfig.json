@@ -1,0 +1,10 @@
+{
+  "extends": "../typescript-config/react-library.json",
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "types": ["node"]
+  },
+  "include": ["./**/*.ts", "./**/*.tsx"]
+}

@@ -5,6 +5,8 @@ const nextConfig = {
   reactStrictMode: true,
   output: "standalone", // ✅ keep for monorepo builds
 
+  transpilePackages: ["@healthlane/auth"],
+
   // ✅ ignore build blockers during dev
   typescript: {
     ignoreBuildErrors: true,

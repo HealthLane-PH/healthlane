@@ -4,7 +4,8 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import Image from "next/image";
 import Modal from "./Modal";
-import SignupPage from "../auth/signup/page"; // reuse your existing signup form
+import SignupForm from "@/app/components/SignupForm"; // ✅ shared client component
+
 
 
 export default function Header() {
@@ -69,7 +70,7 @@ export default function Header() {
               Sign Up
             </button>
             <Link
-              href="/login"
+              href="/auth/login"
               className="text-sm font-semibold text-white bg-[#1bae69] rounded-full px-4 py-1.5 hover:bg-[#169a5f] transition-all duration-200"
             >
               Log In
@@ -133,7 +134,7 @@ export default function Header() {
             Sign Up
           </button>
           <Link
-            href="/login"
+            href="/auth/login"
             className="block text-sm font-semibold text-white bg-[#1bae69] rounded-full px-4 py-2 text-center hover:bg-[#169a5f] transition-all duration-200"
           >
             Log In
@@ -143,8 +144,14 @@ export default function Header() {
 
       {/* Signup Modal */}
       <Modal isOpen={isSignupOpen} onClose={() => setIsSignupOpen(false)}>
-        <SignupPage onClose={() => setIsSignupOpen(false)} />
+        <SignupForm
+          role="patient"
+          title="Create Your Patient Account"
+          showRoleDropdown={false}
+          onClose={() => setIsSignupOpen(false)}
+        />
       </Modal>
+
 
     </header>
   );
