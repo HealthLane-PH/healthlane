@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
-echo "🔧 Forcing correct pnpm & Node versions..."
+echo "🔧 Setting up correct pnpm & Node versions (without corepack)..."
 
-corepack enable
-corepack prepare pnpm@9.7.1 --activate
+# Uninstall any global pnpm
+npm uninstall -g pnpm || true
 
-# Ensure correct binary paths
-export PATH="$(corepack where pnpm)/bin:$PATH"
+# Install pnpm 9.7.1 manually
+npm install -g pnpm@9.7.1
 
 echo "✅ Using pnpm version:"
 pnpm -v
@@ -14,8 +14,5 @@ pnpm -v
 echo "✅ Using Node version:"
 node -v
 
-# Fix for 'env: node: File name too long' bug
-export NODE=$(which node)
-
 echo "📦 Installing dependencies..."
-pnpm install --frozen-lockfile=false --node-path="$NODE"
+pnpm install --frozen-lockfile=false
