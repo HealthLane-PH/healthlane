@@ -2,6 +2,8 @@
 
 import { usePathname } from "next/navigation";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
+
 
 export default function RootWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -24,6 +26,9 @@ export default function RootWrapper({ children }: { children: React.ReactNode })
       <main className="max-w-md md:max-w-3xl lg:max-w-6xl mx-auto px-4 pt-24 pb-12 bg-grayBg min-h-screen">
         {children}
       </main>
+
+      {/* Global footer */}
+      <Footer />
     </>
   );
 }
