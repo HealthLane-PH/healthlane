@@ -35,9 +35,10 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
+      "@/*": ["/*"],
+      "@/app/*": ["app/*"],
+      "@/firebaseConfig": ["src/firebaseConfig.ts"],
+      "@/components/*": ["src/components/*"],
       "@healthlane/ui/*": [
         "../../packages/ui/*"
       ],

@@ -1,9 +1,11 @@
 /** @type {import('next').NextConfig} */
 import path from "path";
 
+const isFirebase = process.env.TARGET === "firebase"; // 👈 Add this toggle
+
 const nextConfig = {
   reactStrictMode: true,
-  output: "standalone", // ✅ keep for monorepo builds
+  output: isFirebase ? "export" : "standalone", // 👈 Smart switch
 
   transpilePackages: ["@healthlane/auth"],
 

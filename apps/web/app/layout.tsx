@@ -1,0 +1,25 @@
+import type { Metadata } from "next";
+import "./globals.css";
+import { Montserrat } from "next/font/google";
+import RootWrapper from "./RootWrapper";
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-montserrat",
+  display: "swap",
+});
+
+export const metadata: Metadata = {
+  title: "HealthLane PH",
+  description: "Manage clinics, staff, and patients seamlessly",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className={`${montserrat.variable} font-sans`}>
+      <body className="bg-grayBg text-grayMid">
+        <RootWrapper>{children}</RootWrapper>
+      </body>
+    </html>
+  );
+}

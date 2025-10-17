@@ -1,8 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",      // ✅ watch the app folder you just moved
+    "./components/**/*.{js,ts,jsx,tsx,mdx}", // optional if you have shared ones here
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    "../../packages/ui/**/*.{js,ts,jsx,tsx}"
+    "../../packages/ui/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   darkMode: 'media',
   theme: {
@@ -24,8 +26,11 @@ module.exports = {
       fontFamily: {
         sans: ["var(--font-montserrat)", "ui-sans-serif", "system-ui", "sans-serif"],
       },
-
+      spacing: {
+        18: "5rem", // adds a new option for custom sizes
+      },
     },
-  }, 
-  plugins: [],
+  },
+  plugins: [require("@tailwindcss/typography")],
 };
+
