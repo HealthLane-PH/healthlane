@@ -8,7 +8,7 @@ const montserrat = Montserrat({
 });
 
 export const metadata = {
-  title: "HealthLane Staff Portal",
+  title: "HealthLane Portal",
   description: "Staff portal for HealthLane",
 };
 

@@ -85,7 +85,7 @@ export default function StaffLoginPage() {
         </div>
 
         <h1 className="text-xl sm:text-2xl font-semibold text-center mb-6 text-gray-900 dark:text-white">
-          Staff Login
+          Staff Login Portal
         </h1>
 
         {error && (
