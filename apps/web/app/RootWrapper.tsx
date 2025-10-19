@@ -1,9 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
+import Header from "@healthlane/ui/Header";
+import Footer from "@healthlane/ui/Footer";
 import { ToastConfig } from "@/components/ToastConfig";
+import "./globals.css";
 
 export default function RootWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

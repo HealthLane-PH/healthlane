@@ -1,15 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",      // ✅ watch the app folder you just moved
-    "./components/**/*.{js,ts,jsx,tsx,mdx}", // optional if you have shared ones here
-    "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    "../../packages/ui/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "../../packages/ui/**/*.{js,ts,jsx,tsx,mdx}", // 👈 Add this
   ],
   darkMode: 'media',
   theme: {
     extend: {
-      colors: {
+     colors: {
         primary: "#1bae69",
         primaryDark: "#169a5f",
         grayDark: "#1B1B1B",
@@ -21,7 +20,9 @@ module.exports = {
         accentBlue: "#0081BF",
         accentRed: "#FF5724",
         brandRed: "#F36D60",
-        brandRedHover: "#FF9999",
+        brandRedhover: "#FF9999",
+        testPink: "#ff00ff",
+        healthlaneblue: "#1761a4",
       },
       fontFamily: {
         sans: ["var(--font-montserrat)", "ui-sans-serif", "system-ui", "sans-serif"],

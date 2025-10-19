@@ -1,14 +1,34 @@
 {
   "files": [],
   "references": [
-    { "path": "./apps/web" },
-    { "path": "./packages/ui" }
+    {
+      "path": "./apps/web"
+    },
+    {
+      "path": "./apps/doctor-web"
+    },
+    {
+      "path": "./packages/ui"
+    },
+    {
+      "path": "./packages/auth"
+    },
+    {
+      "path": "./packages/shared"
+    },
+    {
+      "path": "./packages/typescript-config"
+    }
   ],
   "compilerOptions": {
     "target": "ES2017",
-    "module": "ESNext",                      // 👈 add this
-    "moduleResolution": "node",              // 👈 this now works properly
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "ESNext", // 👈 add this
+    "moduleResolution": "node", // 👈 this now works properly
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -18,11 +38,43 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true,
-    "types": ["react", "react-dom", "react-native"],
+    "types": [
+      "react",
+      "react-dom",
+      "react-native"
+    ],
     "baseUrl": ".",
     "paths": {
-      "@healthlane/ui/*": ["packages/ui/*"],
-      "@healthlane/auth/*": ["packages/auth/*"]
+      "@/*": [
+        "src/*"
+      ],
+      // Packages
+      "@healthlane/ui/*": [
+        "packages/ui/*"
+      ],
+      "@healthlane/auth/*": [
+        "packages/auth/*"
+      ],
+      "@healthlane/shared/*": [
+        "packages/shared/*"
+      ],
+      // Common folders inside src
+      "@components/*": [
+        "src/components/*"
+      ],
+      "@context/*": [
+        "src/context/*"
+      ],
+      "@styles/*": [
+        "src/styles/*"
+      ],
+      "@utils/*": [
+        "src/utils/*"
+      ],
+      // Firebase shared config
+      "@firebaseConfig": [
+        "src/firebaseConfig.ts"
+      ]
     }
   }
 }

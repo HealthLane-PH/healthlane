@@ -5,7 +5,17 @@
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
-    "types": ["react", "react-dom"]
+    "types": ["react", "react-dom"],
+    "baseUrl": "../..",
+    "paths": {
+      "@/*": ["src/*"],
+      "@/app/*": ["apps/web/app/*"],
+      "@/firebaseConfig": ["src/firebaseConfig.ts"],
+      "@/components/*": ["src/components/*"],
+      "@healthlane/ui/*": ["packages/ui/*"],
+      "@healthlane/auth/*": ["packages/auth/*"],
+      "@healthlane/shared/*": ["packages/shared/*"]
+    }
   },
   "include": [
     "./**/*.ts",

@@ -35,22 +35,13 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["/*"],
+      "@/*": ["../../src/*"],
       "@/app/*": ["app/*"],
-      "@/firebaseConfig": ["src/firebaseConfig.ts"],
-      "@/components/*": ["src/components/*"],
-      "@healthlane/ui/*": [
-        "../../packages/ui/*"
-      ],
-      "@healthlane/auth/*": [
-        "../../packages/auth/*"
-      ],
-      "@healthlane/theme/*": [
-        "../../packages/theme/*"
-      ],
-      "@healthlane/auth": [
-        "../../packages/auth/src"
-      ]
+      "@/firebaseConfig": ["../../src/firebaseConfig.ts"],
+      "@/components/*": ["../../src/components/*"],
+      "@healthlane/ui/*": ["../../packages/ui/*"],
+      "@healthlane/auth/*": ["../../packages/auth/*"],
+      "@healthlane/shared/*": ["../../packages/shared/*"]
     },
     "incremental": true
   },

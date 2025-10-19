@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { auth } from "@/firebaseConfig";
 import { notify } from "@/components/ToastConfig";
 import { signInWithEmailAndPassword, signOut, sendEmailVerification } from "firebase/auth";
-import GoogleIcon from "@/app/components/GoogleIcon";
+import GoogleIcon from "@healthlane/ui/GoogleIcon";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "@healthlane/auth";
 

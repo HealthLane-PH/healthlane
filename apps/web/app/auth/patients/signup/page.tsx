@@ -1,4 +1,4 @@
-import SignupForm from "@/app/components/SignupForm";
+import SignupForm from "@healthlane/ui/SignupForm";
 
 export default function PatientSignupPage() {
   return (

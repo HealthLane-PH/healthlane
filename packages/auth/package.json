@@ -4,10 +4,11 @@
   "private": true,
   "main": "./index.ts",
   "types": "./index.ts",
-  "dependencies": {
-    "firebase": "^12.4.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/node": "^20"
+  },
+  "peerDependencies": {
+    "firebase": "^12.4.0"
   }
 }
