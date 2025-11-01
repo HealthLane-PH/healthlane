@@ -32,7 +32,7 @@ function formatFirestoreDate(date?: Timestamp | FieldValue): string {
   return "";
 }
 
-type RoleType = "owner" | "admin" | "staff";
+type RoleType = "Owner" | "Admin" | "Staff";
 type StatusType = "Pending" | "Active" | "On Leave" | "Resigned" | "Suspended" | "All";
 
 interface StaffDoc {
@@ -89,7 +89,7 @@ export default function StaffPage() {
     preferredName: "",
     email: "",
     phone: "",
-    role: "staff",
+    role: "Staff",
     assignedCity: "",
     status: "Pending",
     photoURL: "",
@@ -172,7 +172,7 @@ export default function StaffPage() {
       preferredName: "",
       email: "",
       phone: "",
-      role: "staff",
+      role: "Staff",
       assignedCity: "",
       status: "Pending",
       photoURL: "",
@@ -448,7 +448,7 @@ export default function StaffPage() {
 
       {/* Role Tabs */}
       <div className="flex gap-6 border-b border-gray-200 mb-6 text-sm font-medium">
-        {["All", "owner", "admin", "staff"].map((role) => (
+        {["All", "Owner", "Admin", "Staff"].map((role) => (
           <button
             key={role}
             onClick={() => setActiveRole(role as RoleType | "All")}
@@ -823,9 +823,9 @@ export default function StaffPage() {
                   onChange={handleChange}
                   className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary w-full"
                 >
-                  <option value="owner">Owner</option>
-                  <option value="admin">Admin</option>
-                  <option value="staff">Staff</option>
+                  <option value="Owner">Owner</option>
+                  <option value="Admin">Admin</option>
+                  <option value="Staff">Staff</option>
                 </select>
 
                 {/* Show status dropdown only on edit */}

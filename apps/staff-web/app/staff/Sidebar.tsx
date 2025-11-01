@@ -29,11 +29,14 @@ const menuItems = [
 ];
 
 interface FirestoreStaff {
-  displayname?: string;
-  firstname?: string;
+  preferredName?: string;   // legacy or alternate naming
+  firstName?: string;     // legacy lowercase version
+  lastName?: string;      // optional, for full name support
   email?: string;
+  role?: string;
   photoURL?: string;
 }
+
 
 export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
@@ -74,7 +77,11 @@ export default function Sidebar({ onClose }: SidebarProps) {
   };
 
   const displayName =
-    staffData?.displayname || staffData?.firstname || "Staff User";
+    staffData?.preferredName ||
+    staffData?.firstName ||
+    "Staff User";
+
+
 
   const photoURL =
     staffData?.photoURL || "/images/default-avatar.png"; // ✅ fallback
@@ -100,18 +107,16 @@ export default function Sidebar({ onClose }: SidebarProps) {
               key={item.name}
               href={item.path}
               onClick={onClose}
-              className={`group flex items-center space-x-2 px-3 py-2 rounded-md transition ${
-                pathname === item.path
-                  ? "bg-gray-700 text-white"
-                  : "text-gray-300 hover:bg-gray-600"
-              }`}
+              className={`group flex items-center space-x-2 px-3 py-2 rounded-md transition ${pathname === item.path
+                ? "bg-gray-700 text-white"
+                : "text-gray-300 hover:bg-gray-600"
+                }`}
             >
               <span
-                className={`${
-                  pathname === item.path
-                    ? "text-[#00A651]"
-                    : "text-gray-400 group-hover:text-white"
-                } transition-colors`}
+                className={`${pathname === item.path
+                  ? "text-[#00A651]"
+                  : "text-gray-400 group-hover:text-white"
+                  } transition-colors`}
               >
                 {item.icon}
               </span>

@@ -21,8 +21,11 @@ exports.sendStaffInvite = onDocumentCreated(
     const staffData = event.data.data();
     const staffId = event.params.staffId;
 
-    // Only continue if a valid staff doc was added
-    if (!staffData || staffData.role !== "staff") return null;
+    // ✅ Trigger for all valid staff roles
+    if (!staffData || !["Owner", "Admin", "Staff"].includes(staffData.role)) {
+      console.log(`⚠️ Skipping invite — invalid or non-staff role: ${staffData?.role}`);
+      return null;
+    }
 
     try {
       // 1️⃣ Generate token + hash + expiry
@@ -40,6 +43,11 @@ exports.sendStaffInvite = onDocumentCreated(
       const inviteLink = `https://staff.healthlane.ph/set-password?email=${encodeURIComponent(
         staffData.email
       )}&token=${token}`;
+
+      // 🧠 Determine correct article ("a" or "an")
+      const role = staffData.role || "Staff";
+      const article = /^[aeiou]/i.test(role) ? "an" : "a";
+
 
       // 4️⃣ Compose email
       const msg = {
@@ -68,7 +76,7 @@ exports.sendStaffInvite = onDocumentCreated(
     <!-- Body -->
     <div style="padding:30px 70px;text-align:left;color:#333;">
       <p style="font-size:15px;line-height:1.6;margin-bottom:28px;">
-        You’ve been added as a <b>staff member</b> on <b>HealthLane</b> — a trusted space where clinics and patients connect seamlessly.  
+        You’ve been added as ${article} <b>${role}</b> on <b>HealthLane</b> — a trusted space where clinics and patients connect seamlessly.  
         To activate your account, please set your password below.
       </p>
 
@@ -83,7 +91,7 @@ exports.sendStaffInvite = onDocumentCreated(
 
       <p style="font-size:14px;color:#777;">
         Once your account is set, you can log in anytime at  
-        <a href="https://www.healthlane.ph/staff-login" style="color:#1bae69;text-decoration:none;">healthlane.ph/staff-login</a>.
+        <a href="https://staff.healthlane.ph" style="color:#1bae69;text-decoration:none;">staff.healthlane.ph</a>.
       </p>
     </div>
 
@@ -102,7 +110,7 @@ exports.sendStaffInvite = onDocumentCreated(
 
       // 5️⃣ Send the email via SendGrid
       await sgMail.send(msg);
-      console.log(`✅ Staff invite sent to ${staffData.email}`);
+      console.log(`✅ Staff invite sent to ${staffData.email} (${staffData.role})`);
     } catch (err) {
       console.error("❌ Error sending staff invite:", err);
     }
