@@ -9,48 +9,48 @@ const crypto = require("crypto");
 initializeApp();
 const db = getFirestore();
 
-// Set SendGrid API key (reuse what worked in index.js)
+// Set SendGrid API key
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
 
 // Global options
 setGlobalOptions({ maxInstances: 10 });
 
 exports.sendStaffInvite = onDocumentCreated(
-    { document: "users/{userId}", region: "asia-southeast1" },
-    async (event) => {
-        const userData = event.data.data();
-        const userId = event.params.userId;
+  { document: "staff/{staffId}", region: "asia-southeast1" },
+  async (event) => {
+    const staffData = event.data.data();
+    const staffId = event.params.staffId;
 
-        if (!userData || userData.role !== "staff") return null;
+    // Only continue if a valid staff doc was added
+    if (!staffData || staffData.role !== "staff") return null;
 
-        try {
-            // 1️⃣ Generate token + hash + expiry
-            const token = crypto.randomBytes(32).toString("hex");
-            const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-            const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // expires in 7 days
+    try {
+      // 1️⃣ Generate token + hash + expiry
+      const token = crypto.randomBytes(32).toString("hex");
+      const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // expires in 7 days
 
-            // 2️⃣ Save hashed token & expiry
-            await db.collection("users").doc(userId).update({
-                inviteToken: hashedToken,
-                inviteExpires: expiresAt,
-            });
+      // 2️⃣ Save hashed token & expiry to Firestore
+      await db.collection("staff").doc(staffId).update({
+        inviteToken: hashedToken,
+        inviteExpires: expiresAt,
+      });
 
-            // 3️⃣ Build invite link
-            const inviteLink = `https://healthlane.ph/set-password?email=${encodeURIComponent(
-                userData.email
-            )}&token=${token}`;
+      // 3️⃣ Build invite link
+      const inviteLink = `https://staff.healthlane.ph/set-password?email=${encodeURIComponent(
+        staffData.email
+      )}&token=${token}`;
 
-            // 4️⃣ Compose email
-            const msg = {
-                to: userData.email,
-                from: {
-                    email: "info@healthlane.ph",
-                    name: "HealthLane PH",
-                },
-                subject: "Set up your HealthLane Staff Account",
-                html: `
-  <div style="background-color:#f4f8f7;padding:40px 0;font-family:'Segoe UI',Arial,sans-serif;">
+      // 4️⃣ Compose email
+      const msg = {
+        to: staffData.email,
+        from: {
+          email: "info@healthlane.ph",
+          name: "HealthLane PH",
+        },
+        subject: "Set up your HealthLane Staff Account",
+        html: `
+<div style="background-color:#f4f8f7;padding:40px 0;font-family:'Segoe UI',Arial,sans-serif;">
   <div style="max-width:520px;margin:0 auto;background-color:#ffffff;border-radius:12px;
               box-shadow:0 4px 12px rgba(0,0,0,0.05);overflow:hidden;">
     
@@ -61,13 +61,12 @@ exports.sendStaffInvite = onDocumentCreated(
            width="160"
            style="margin-bottom:8px;">
       <h2 style="font-size:20px;color:#1bae69;margin:0;font-weight:600;">
-        Welcome, ${userData.firstName || ""}!
+        Welcome, ${staffData.firstName || ""}!
       </h2>
     </div>
 
     <!-- Body -->
-    <div style="padding: 30px 70px;text-align:left;color:#333;">
-
+    <div style="padding:30px 70px;text-align:left;color:#333;">
       <p style="font-size:15px;line-height:1.6;margin-bottom:28px;">
         You’ve been added as a <b>staff member</b> on <b>HealthLane</b> — a trusted space where clinics and patients connect seamlessly.  
         To activate your account, please set your password below.
@@ -98,16 +97,16 @@ exports.sendStaffInvite = onDocumentCreated(
 
   </div>
 </div>
-
 `,
-            };
+      };
 
-            await sgMail.send(msg);
-            console.log(`✅ Staff invite sent to ${userData.email}`);
-        } catch (err) {
-            console.error("❌ Error sending staff invite:", err);
-        }
-
-        return null;
+      // 5️⃣ Send the email via SendGrid
+      await sgMail.send(msg);
+      console.log(`✅ Staff invite sent to ${staffData.email}`);
+    } catch (err) {
+      console.error("❌ Error sending staff invite:", err);
     }
+
+    return null;
+  }
 );

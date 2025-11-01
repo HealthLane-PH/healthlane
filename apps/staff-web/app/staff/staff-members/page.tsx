@@ -97,7 +97,7 @@ export default function StaffPage() {
 
   // ---------- Firestore Subscription ----------
   useEffect(() => {
-    const q = query(collection(db, "users"), orderBy("firstName", "asc"));
+    const q = query(collection(db, "staff"), orderBy("firstName", "asc"));
     const unsub = onSnapshot(q, (snap) => {
       const list = snap.docs.map((d) => ({ id: d.id, ...(d.data() as StaffDoc) }));
       setStaffList(list);
@@ -157,6 +157,14 @@ export default function StaffPage() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const capitalized =
+      value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+    setForm((prev) => ({ ...prev, [name]: capitalized }));
+  };
+
+
   const resetForm = () => {
     setForm({
       firstName: "",
@@ -189,6 +197,7 @@ export default function StaffPage() {
         lastName: capitalize(form.lastName),
         preferredName: capitalize(form.preferredName || ""),
         assignedCity: capitalize(form.assignedCity || ""),
+        status: editingId ? form.status : "Pending", // 👈 default on add
         createdAt: serverTimestamp(),
         createdBy: user?.uid || "system",
         createdByName: user?.displayName || user?.email || "System",
@@ -196,7 +205,7 @@ export default function StaffPage() {
 
       if (editingId) {
         // When editing an existing staff record
-        await updateDoc(doc(db, "users", editingId), {
+        await updateDoc(doc(db, "staff", editingId), {
           ...payload,
           updatedAt: serverTimestamp(),
           updatedBy: user?.uid || "system",
@@ -205,7 +214,7 @@ export default function StaffPage() {
         setAlert("✅ Changes saved.");
       } else {
         // When adding a new staff record
-        await addDoc(collection(db, "users"), payload);
+        await addDoc(collection(db, "staff"), payload);
         setAlert("✅ Staff added successfully!");
       }
 
@@ -229,7 +238,7 @@ export default function StaffPage() {
 
   const confirmDelete = async () => {
     if (!deleteId) return;
-    await deleteDoc(doc(db, "users", deleteId));
+    await deleteDoc(doc(db, "staff", deleteId));
     setShowDeleteModal(false);
     setDeleteId(null);
   };
@@ -642,12 +651,13 @@ export default function StaffPage() {
             exit={{ opacity: 0 }}
           >
             <MotionDiv
-              className="bg-white w-full sm:max-w-lg rounded-t-2xl sm:rounded-xl p-4 sm:p-6 max-h-[90vh] overflow-y-auto"
+              className="bg-white w-full sm:max-w-lg rounded-t-2xl sm:rounded-xl p-4 sm:p-6 max-h-[90vh] overflow-y-auto z-[60] pointer-events-auto"
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", stiffness: 80 }}
             >
+
               <div className="flex justify-between items-center mb-3">
                 <h2 className="text-lg font-semibold text-gray-800">
                   {editingId ? "Edit Staff" : "Add New Staff"}
@@ -728,7 +738,7 @@ export default function StaffPage() {
                           name="firstName"
                           placeholder=" "
                           value={form.firstName}
-                          onChange={handleChange}
+                          onChange={handleNameChange}
                           className="peer w-full border border-gray-300 rounded-lg px-3 pt-5 pb-2 text-sm focus:ring-2 focus:ring-primary bg-gray-50 focus:bg-white transition"
                           required
                         />
@@ -742,7 +752,7 @@ export default function StaffPage() {
                           name="lastName"
                           placeholder=" "
                           value={form.lastName}
-                          onChange={handleChange}
+                          onChange={handleNameChange}
                           className="peer w-full border border-gray-300 rounded-lg px-3 pt-5 pb-2 text-sm focus:ring-2 focus:ring-primary bg-gray-50 focus:bg-white transition"
                           required
                         />
@@ -818,18 +828,21 @@ export default function StaffPage() {
                   <option value="staff">Staff</option>
                 </select>
 
-                <select
-                  name="status"
-                  value={form.status}
-                  onChange={handleChange}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary w-full"
-                >
-                  <option>Pending</option>
-                  <option>Active</option>
-                  <option>On Leave</option>
-                  <option>Resigned</option>
-                  <option>Suspended</option>
-                </select>
+                {/* Show status dropdown only on edit */}
+                {editingId && (
+                  <select
+                    name="status"
+                    value={form.status}
+                    onChange={handleChange}
+                    className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary w-full mt-2"
+                  >
+                    <option>Active</option>
+                    <option>On Leave</option>
+                    <option>Resigned</option>
+                    <option>Suspended</option>
+                    <option>Banned</option>
+                  </select>
+                )}
 
                 <div className="flex justify-between items-center pt-4">
                   {editingId ? (

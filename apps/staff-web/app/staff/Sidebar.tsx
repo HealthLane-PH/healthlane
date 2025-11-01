@@ -6,20 +6,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { signOut, User } from "firebase/auth";
 import { auth, db } from "@/firebaseConfig";
 import { useEffect, useState } from "react";
-import {
-  doc,
-  getDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-} from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import {
   HomeIcon,
   Building2Icon,
   UsersIcon,
   UserCogIcon,
   InboxIcon,
+  LogOut,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -34,40 +28,40 @@ const menuItems = [
   { name: "Support Tickets", path: "/staff/inbox", icon: <InboxIcon className="h-5 w-5" /> },
 ];
 
-interface FirestoreUser {
-  preferredName?: string;
-  firstName?: string;
+interface FirestoreStaff {
+  displayname?: string;
+  firstname?: string;
   email?: string;
-   photoURL?: string;
+  photoURL?: string;
 }
 
 export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [userData, setUserData] = useState<FirestoreUser | null>(null);
+  const [staffData, setStaffData] = useState<FirestoreStaff | null>(null);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (u) => {
       if (u) {
         setUser(u);
 
-        // ✅ First try fetching by UID (in case any users were saved that way)
-        const userRef = doc(db, "users", u.uid);
-        const snap = await getDoc(userRef);
+        // 🔍 Try by UID first
+        const staffRef = doc(db, "staff", u.uid);
+        const staffSnap = await getDoc(staffRef);
 
-        if (snap.exists()) {
-          setUserData(snap.data() as FirestoreUser);
+        if (staffSnap.exists()) {
+          setStaffData(staffSnap.data() as FirestoreStaff);
         } else {
-          // ✅ Fallback: fetch by email (covers all auto-ID users)
-          const q = query(collection(db, "users"), where("email", "==", u.email));
+          // 🔍 Fallback: query by email (in case of auto-ID docs)
+          const q = query(collection(db, "staff"), where("email", "==", u.email));
           const querySnap = await getDocs(q);
           if (!querySnap.empty) {
-            setUserData(querySnap.docs[0].data() as FirestoreUser);
+            setStaffData(querySnap.docs[0].data() as FirestoreStaff);
           }
         }
       } else {
-        router.push("../staff-login");
+        router.push("/");
       }
     });
 
@@ -76,11 +70,17 @@ export default function Sidebar({ onClose }: SidebarProps) {
 
   const handleLogout = async () => {
     await signOut(auth);
-    router.push("../staff-login");
+    router.push("/"); // ✅ fixed redirect path
   };
 
+  const displayName =
+    staffData?.displayname || staffData?.firstname || "Staff User";
+
+  const photoURL =
+    staffData?.photoURL || "/images/default-avatar.png"; // ✅ fallback
+
   return (
-    <div className="flex flex-col justify-between min-h-screen">
+    <div className="flex flex-col justify-between min-h-screen bg-gray-900">
       <div>
         {/* Logo */}
         <div className="flex items-center justify-center py-6">
@@ -93,23 +93,25 @@ export default function Sidebar({ onClose }: SidebarProps) {
           />
         </div>
 
-        {/* Nav */}
+        {/* Navigation */}
         <nav className="flex-1 px-4 space-y-2 mt-6">
           {menuItems.map((item) => (
             <Link
               key={item.name}
               href={item.path}
               onClick={onClose}
-              className={`group flex items-center space-x-2 px-3 py-2 rounded-md transition ${pathname === item.path
+              className={`group flex items-center space-x-2 px-3 py-2 rounded-md transition ${
+                pathname === item.path
                   ? "bg-gray-700 text-white"
                   : "text-gray-300 hover:bg-gray-600"
-                }`}
+              }`}
             >
               <span
-                className={`${pathname === item.path
+                className={`${
+                  pathname === item.path
                     ? "text-[#00A651]"
                     : "text-gray-400 group-hover:text-white"
-                  } transition-colors`}
+                } transition-colors`}
               >
                 {item.icon}
               </span>
@@ -119,39 +121,32 @@ export default function Sidebar({ onClose }: SidebarProps) {
         </nav>
       </div>
 
-      {/* User info + logout */}
+      {/* Staff info + logout */}
       {user && (
         <div className="mt-auto border-t border-gray-700 p-4">
           <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-3">
-              {userData?.photoURL ? (
-                <img
-                  src={userData.photoURL}
-                  alt={userData.preferredName || "Profile"}
-                  className="w-10 h-10 rounded-full object-cover border border-gray-600"
-                />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white font-semibold">
-                  {(userData?.preferredName?.charAt(0) ||
-                    userData?.firstName?.charAt(0) ||
-                    user?.email?.charAt(0) ||
-                    "?").toUpperCase()}
-                </div>
-              )}
-              <div>
-                <p className="font-medium text-white">
-                  {userData?.preferredName || userData?.firstName || "Staff User"}
-                </p>
+            {photoURL ? (
+              <img
+                src={photoURL}
+                alt={displayName}
+                className="w-10 h-10 rounded-full object-cover border border-gray-600"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white font-semibold">
+                {(displayName.charAt(0) || "?").toUpperCase()}
               </div>
+            )}
+            <div>
+              <p className="font-medium text-white">{displayName}</p>
+              <button
+                onClick={handleLogout}
+                className="mt-1 flex items-center gap-1 text-gray-400 hover:text-red-400 text-sm"
+              >
+                <LogOut size={14} />
+                <span>Logout</span>
+              </button>
             </div>
           </div>
-          <button
-            onClick={handleLogout}
-            className="mt-3 flex items-center space-x-2 text-gray-300 hover:text-white cursor-pointer"
-          >
-            <span>⇦</span>
-            <span>Logout</span>
-          </button>
         </div>
       )}
     </div>

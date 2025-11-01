@@ -14,8 +14,7 @@ import {
 } from "firebase/firestore";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react"; // 👈 Add this to your import list (top of file)
-
+import { Loader2 } from "lucide-react";
 
 export default function StaffLoginPage() {
   const router = useRouter();
@@ -24,41 +23,80 @@ export default function StaffLoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
     setLoading(true);
 
     try {
-      // ✅ 1. Firebase Auth login
+      // 🔐 Step 1. Attempt Firebase Auth login
       const userCred = await signInWithEmailAndPassword(auth, email, password);
       const user = userCred.user;
 
-      // ✅ 2. Query Firestore by email (not UID)
-      const q = query(collection(db, "users"), where("email", "==", email));
+      // 🔍 Step 2. Check Firestore staff record
+      const q = query(collection(db, "staff"), where("email", "==", email));
       const querySnap = await getDocs(q);
 
-      if (!querySnap.empty) {
-        const userData = querySnap.docs[0].data();
-
-        // ✅ 3. Role-based redirect
-        if (userData.role === "staff" || userData.role === "admin") {
-          router.push("/staff/dashboard");
-        } else if (userData.role === "parent") {
-          router.push("/parent/dashboard");
-        } else {
-          setError("Access denied. This account is not a staff user.");
-        }
-      } else {
-        setError("User record not found in database.");
+      if (querySnap.empty) {
+        setError("This user does not exist.");
+        setLoading(false);
+        return;
       }
-    } catch (err: unknown) {
-      if (err instanceof Error) setError(err.message);
-      else setError("An unknown error occurred.");
+
+      const userData = querySnap.docs[0].data();
+
+      // 🚧 Step 3. Check verification
+      if (!userData.isVerified) {
+        setError("Verify your email first. Please check your inbox for the invite link.");
+        setLoading(false);
+        return;
+      }
+
+      // 🎯 Step 4. Role-based routing
+      if (["Owner", "Admin", "Staff"].includes(userData.role)) {
+        router.push("/staff/dashboard");
+      } else {
+        setError("Access denied. This account is not a staff user.");
+      }
+    } catch (err: any) {
+      // ✅ Prevent Next.js overlay crash
+      setLoading(false);
+
+      console.error("Login Error:", err);
+
+      const message = err?.message?.toLowerCase() || "";
+      const code = err?.code || "";
+
+      // ✅ Instead of awaiting inside catch, handle Firestore check safely here
+      if (code === "auth/invalid-credential" || code === "auth/user-not-found") {
+        try {
+          const q = query(collection(db, "staff"), where("email", "==", email));
+          const querySnap = await getDocs(q);
+
+          if (querySnap.empty) {
+            setError("This user does not exist.");
+          } else {
+            setError("Incorrect password. Please try again.");
+          }
+        } catch (subErr) {
+          console.error("Sub-check error:", subErr);
+          setError("This user does not exist.");
+        }
+      } else if (code === "auth/wrong-password") {
+        setError("Incorrect password. Please try again.");
+      } else if (code === "auth/too-many-requests") {
+        setError("Too many failed attempts. Please try again later.");
+      } else if (message.includes("network")) {
+        setError("Network error. Please check your connection.");
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
+
+
 
   const handleForgotPassword = async () => {
     if (!email) return setError("Please enter your email first.");
@@ -129,8 +167,8 @@ export default function StaffLoginPage() {
             type="submit"
             disabled={loading}
             className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm sm:text-base font-medium transition ${loading
-                ? "bg-[#1bae69]/70 cursor-not-allowed"
-                : "bg-[#1bae69] hover:bg-[#169a5f]"
+              ? "bg-[#1bae69]/70 cursor-not-allowed"
+              : "bg-[#1bae69] hover:bg-[#169a5f]"
               } text-white`}
           >
             {loading ? (
@@ -142,7 +180,6 @@ export default function StaffLoginPage() {
               "Log In"
             )}
           </button>
-
         </form>
 
         <div className="mt-4 text-center">
