@@ -1,5 +1,6 @@
 import "./globals.css";
 import { Montserrat } from "next/font/google";
+import { ToastConfig } from "@/components/ToastConfig";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -20,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${montserrat.variable} font-sans`}>
       <body>{children}</body>
+      <ToastConfig />
     </html>
   );
 }

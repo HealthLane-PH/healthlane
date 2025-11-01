@@ -130,17 +130,18 @@ export default function Sidebar({ onClose }: SidebarProps) {
       {user && (
         <div className="mt-auto border-t border-gray-700 p-4">
           <div className="flex items-center space-x-3">
-            {photoURL ? (
+            {staffData?.photoURL ? (
               <img
-                src={photoURL}
+                src={staffData.photoURL}
                 alt={displayName}
                 className="w-10 h-10 rounded-full object-cover border border-gray-600"
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white font-semibold">
-                {(displayName.charAt(0) || "?").toUpperCase()}
+              <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-white font-semibold">
+                {(displayName?.charAt(0) || "?").toUpperCase()}
               </div>
             )}
+
             <div>
               <p className="font-medium text-white">{displayName}</p>
               <button

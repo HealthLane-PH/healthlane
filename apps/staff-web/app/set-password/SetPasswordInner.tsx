@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { auth, db } from "@/firebaseConfig";
 import {
@@ -28,6 +29,10 @@ export default function SetPasswordInner() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [valid, setValid] = useState<boolean | null>(null);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   // ✅ Verify token when page loads
   useEffect(() => {
@@ -72,9 +77,11 @@ export default function SetPasswordInner() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
+      setFormError("Passwords do not match.");
       notify.error("Passwords do not match.");
       return;
     }
+    setFormError(null);
     setLoading(true);
 
     try {
@@ -144,22 +151,48 @@ export default function SetPasswordInner() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-3">
-          <input
-            type="password"
-            placeholder="Enter new password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-primary focus:border-primary"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Confirm password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-primary focus:border-primary"
-            required
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter new password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-primary focus:border-primary"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((p) => !p)}
+              className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+
+          <div className="relative">
+            <input
+              type={showConfirm ? "text" : "password"}
+              placeholder="Confirm password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-primary focus:border-primary"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirm((p) => !p)}
+              className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+              tabIndex={-1}
+            >
+              {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+
+          {formError && (
+            <p className="text-red-600 text-sm font-medium text-center">{formError}</p>
+          )}
+
           <button
             type="submit"
             disabled={loading}
