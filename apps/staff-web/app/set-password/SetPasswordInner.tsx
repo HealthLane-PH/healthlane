@@ -35,7 +35,7 @@ export default function SetPasswordInner() {
       try {
         const hashed = hashToken(token);
         const q = query(
-          collection(db, "users"),
+          collection(db, "staff"), // 👈 Changed from "users" to "staff"
           where("email", "==", email),
           where("inviteToken", "==", hashed)
         );
@@ -51,7 +51,7 @@ export default function SetPasswordInner() {
         const data = userDoc.data();
 
         // Check expiry
-        if (data.inviteExpires?.toDate() < new Date()) {
+        if (data.inviteExpires?.toDate && data.inviteExpires.toDate() < new Date()) {
           setValid(false);
           setMessage("This link has expired. Please ask your admin for a new one.");
           return;
@@ -60,7 +60,7 @@ export default function SetPasswordInner() {
         setValid(true);
       } catch (err) {
         console.error(err);
-        setMessage("Something went wrong.");
+        setMessage("Something went wrong while verifying your invite link.");
         setValid(false);
       }
     };
@@ -82,10 +82,10 @@ export default function SetPasswordInner() {
       await createUserWithEmailAndPassword(auth, email, password);
 
       // Mark staff as active and remove invite token
-      const q = query(collection(db, "users"), where("email", "==", email));
+      const q = query(collection(db, "staff"), where("email", "==", email)); // 👈 Changed
       const snap = await getDocs(q);
       if (!snap.empty) {
-        const userRef = doc(db, "users", snap.docs[0].id);
+        const userRef = doc(db, "staff", snap.docs[0].id); // 👈 Changed
         await updateDoc(userRef, {
           status: "Active",
           inviteToken: null,
@@ -97,7 +97,6 @@ export default function SetPasswordInner() {
       await signInWithEmailAndPassword(auth, email, password);
       notify.success("Account created successfully!");
       setTimeout(() => router.push("/staff/dashboard"), 1500);
-
     } catch (err: unknown) {
       if (err instanceof Error) {
         notify.error(err.message);
@@ -174,7 +173,6 @@ export default function SetPasswordInner() {
             ) : (
               "Set Password"
             )}
-
           </button>
         </form>
       </div>
