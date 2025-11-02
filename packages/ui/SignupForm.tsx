@@ -7,12 +7,6 @@ import GoogleIcon from "@healthlane/ui/GoogleIcon";
 import { notify } from "@/components/ToastConfig";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { auth, db } from "@/firebaseConfig";
-import {
-  createUserWithEmailAndPassword,
-  updateProfile,
-  sendEmailVerification,
-} from "firebase/auth";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 // 🔗 Where Firebase should send users after clicking the verification link
 const actionCodeSettings = {
@@ -44,6 +38,10 @@ export default function SignupForm({
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingPatientData, setPendingPatientData] = useState<any>(null);
+
+
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const isFormValid =
     firstName.trim() &&
@@ -58,74 +56,112 @@ export default function SignupForm({
     setLoading(true);
 
     try {
+      console.log("🟢 Starting signup...");
+
       const trimmedFirst = firstName.trim();
       const trimmedLast = lastName.trim();
-      const trimmedEmail = email.trim();
+      const trimmedEmail = email.trim().toLowerCase();
       const trimmedPass = password.trim();
-      const selectedRole = showRoleDropdown ? customRole : role;
-      const normalizedEmail = trimmedEmail.toLowerCase();
 
-      // 1️⃣ Create user
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        normalizedEmail,
-        trimmedPass
-      );
+      const {
+        fetchSignInMethodsForEmail,
+        createUserWithEmailAndPassword,
+        updateProfile,
+        sendEmailVerification,
+        signInWithEmailAndPassword,
+      } = await import("firebase/auth");
+      const {
+        getDocs,
+        query,
+        where,
+        collection,
+        setDoc,
+        doc,
+        serverTimestamp,
+      } = await import("firebase/firestore");
+
+      console.log("🔍 Checking if email exists in Firebase Auth...");
+      const methods = await fetchSignInMethodsForEmail(auth, trimmedEmail);
+      console.log("✅ Auth methods found:", methods);
+
+      const emailExistsInAuth = methods.length > 0;
+
+      // 3️⃣ Create or link account
+      console.log("🔍 Checking if email exists in patients collection...");
+      const patientQuery = query(collection(db, "patients"), where("email", "==", trimmedEmail));
+      const patientSnap = await getDocs(patientQuery);
+      const alreadyPatient = !patientSnap.empty;
+
+      console.log("📦 Branching logic:", { emailExistsInAuth, alreadyPatient });
+
+      if (alreadyPatient) {
+        notify.warning("This email is already registered as a patient. Please log in instead.");
+        router.push("/auth/login");
+        return;
+      }
+
+      // Try to create a Firebase Auth user
+      let userCredential;
+      try {
+        console.log("🆕 Trying to create new Auth user...");
+        userCredential = await createUserWithEmailAndPassword(auth, trimmedEmail, trimmedPass);
+      } catch (err: any) {
+        if (err.code === "auth/email-already-in-use") {
+          console.log("⚠️ Detected existing Auth user.");
+          setPendingPatientData({
+            firstName: trimmedFirst,
+            lastName: trimmedLast,
+            email: trimmedEmail,
+          });
+          setShowConfirmModal(true); // 👈 triggers the confirmation modal
+          return; // stop here, wait for user response
+        }
+
+      }
+
+      // If userCredential is null, email exists in Auth (e.g. staff)
+      if (!userCredential) {
+        console.log("👥 Existing Auth user — creating patient record directly.");
+        await setDoc(doc(collection(db, "patients")), {
+          firstName: trimmedFirst,
+          lastName: trimmedLast,
+          email: trimmedEmail,
+          role: "patient",
+          status: "Active",
+          createdAt: serverTimestamp(),
+        });
+        notify.success("Welcome! Your patient account has been created.");
+        await new Promise((r) => setTimeout(r, 500));
+        router.push("/dashboard");
+        return;
+      }
+
+      // If userCredential exists, it's a brand new user
       const user = userCredential.user;
-
-      // 2️⃣ Send verification email
+      await updateProfile(user, { displayName: `${trimmedFirst} ${trimmedLast}` });
       await sendEmailVerification(user, actionCodeSettings);
-      notify.success("Account created! Please check your email to verify your account.");
 
-      // 3️⃣ Update Firebase profile display name
-      await updateProfile(user, {
-        displayName: `${trimmedFirst} ${trimmedLast}`,
+      await setDoc(doc(collection(db, "patients")), {
+        firstName: trimmedFirst,
+        lastName: trimmedLast,
+        email: trimmedEmail,
+        role: "patient",
+        status: "Pending",
+        createdAt: serverTimestamp(),
       });
 
-      // 4️⃣ Save Firestore record (role-specific)
-      if (selectedRole === "doctor") {
-        await setDoc(doc(db, "doctors", user.uid), {
-          firstName: trimmedFirst,
-          lastName: trimmedLast,
-          email: normalizedEmail,
-          role: "doctor",
-          accountStatus: "Account Created", // waiting for onboarding verification
-          createdAt: serverTimestamp(),
-        });
-      } else {
-        await setDoc(doc(db, "patients", user.uid), {
-          firstName: trimmedFirst,
-          lastName: trimmedLast,
-          email: normalizedEmail,
-          role: "patient",
-          status: "Pending", // purely for lifecycle tracking (not used in auth logic)
-          createdAt: serverTimestamp(),
-        });
-      }
-
-      // 5️⃣ Redirect after save
+      notify.success("Account created! Please check your email to verify your account.");
+      await new Promise((r) => setTimeout(r, 500));
       router.push("/auth/login?verified=false");
 
-      if (onClose) setTimeout(onClose, 500);
     } catch (error: any) {
-      console.error(error);
-      switch (error.code) {
-        case "auth/email-already-in-use":
-          notify.warning("This email is already registered. Try logging in instead.");
-          break;
-        case "auth/invalid-email":
-          notify.warning("Please enter a valid email address.");
-          break;
-        case "auth/weak-password":
-          notify.warning("Password should be at least 6 characters.");
-          break;
-        default:
-          notify.error("Something went wrong. Please try again.");
-      }
+      console.error("❌ Error caught in signup flow:", error);
+      notify.error("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleGoogle = async () => {
     try {
@@ -318,11 +354,10 @@ export default function SignupForm({
         <button
           type="submit"
           disabled={loading || !isFormValid}
-          className={`w-full flex items-center justify-center gap-2 ${
-            loading || !isFormValid
-              ? "bg-[#1bae69]/50 cursor-not-allowed"
-              : "bg-[#1bae69] hover:bg-[#169a5f]"
-          } text-white py-3 rounded-2xl font-semibold tracking-tight shadow-[0_4px_14px_rgba(27,174,105,0.25)] transition-all duration-300 active:scale-[0.98]`}
+          className={`w-full flex items-center justify-center gap-2 ${loading || !isFormValid
+            ? "bg-[#1bae69]/50 cursor-not-allowed"
+            : "bg-[#1bae69] hover:bg-[#169a5f]"
+            } text-white py-3 rounded-2xl font-semibold tracking-tight shadow-[0_4px_14px_rgba(27,174,105,0.25)] transition-all duration-300 active:scale-[0.98]`}
         >
           {loading ? (
             <>
@@ -382,6 +417,46 @@ export default function SignupForm({
           </a>
         </p>
       )}
+
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-[90%] max-w-sm text-center shadow-xl">
+            <p className="text-gray-700 mb-6 text-sm">
+              This email already exists in our system.
+              <br />
+              By creating a patient account, your original password will still apply.
+              <br />
+              Continue?
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={async () => {
+                  setShowConfirmModal(false);
+                  const { doc, collection, setDoc, serverTimestamp } = await import("firebase/firestore");
+                  await setDoc(doc(collection(db, "patients")), {
+                    ...pendingPatientData,
+                    role: "patient",
+                    status: "Active",
+                    createdAt: serverTimestamp(),
+                  });
+                  notify.success("Your patient account has been created!");
+                  router.push("/dashboard");
+                }}
+                className="px-4 py-2 bg-[#1bae69] text-white rounded-lg hover:bg-[#169a5f]"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </form>
   );
 }
