@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { Menu, X, Eye, EyeOff } from "lucide-react";
-import Image from "next/image";
-import Sidebar from "./Sidebar";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { auth } from "@/firebaseConfig";
+import { onAuthStateChanged } from "firebase/auth";
 import { ToastConfig, notify } from "@/components/ToastConfig";
 import { Montserrat } from "next/font/google";
+import Image from "next/image";
+import Sidebar from "./Sidebar";
 import MobileNav from "./MobileNav";
 
 const montserrat = Montserrat({
@@ -14,10 +16,32 @@ const montserrat = Montserrat({
   display: "swap",
 });
 
-export default function DoctorLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [isListed, setIsListed] = useState(false);
-  const [isVerified, setIsVerified] = useState(false); // only two statuses
+  const [loading, setLoading] = useState(true);
+
+  // ✅ Auth guard logic
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        notify.warning("Please log in to access your dashboard.");
+        router.push("/auth/login");
+      } else {
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen text-gray-500">
+        Checking authentication...
+      </div>
+    );
+  }
 
   return (
     <div className={`${montserrat.variable} font-sans min-h-screen bg-[#F5F5F5]`}>

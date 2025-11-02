@@ -7,10 +7,10 @@ export default function MobileNav() {
   const pathname = usePathname();
 
   const links = [
-    { href: "/dashboard/patient", label: "Home", icon: Home },
-    { href: "/dashboard/patient/profile", label: "Profile", icon: User },
-    { href: "/dashboard/patient/settings", label: "Settings", icon: Settings },
-    { href: "/dashboard/patient/alerts", label: "Alerts", icon: Bell },
+    { href: "/dashboard/", label: "Home", icon: Home },
+    { href: "/dashboard/profile", label: "Profile", icon: User },
+    { href: "/dashboard/settings", label: "Settings", icon: Settings },
+    { href: "/dashboard/alerts", label: "Alerts", icon: Bell },
   ];
 
   return (

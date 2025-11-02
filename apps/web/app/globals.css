@@ -79,6 +79,19 @@ select,
   --toastify-color-success: #1bae69;
   --toastify-color-error: #d32f2f;
   --toastify-color-info: #1e88e5;
-  --toastify-toast-background: #ffffff;
+  --toastify-toast-background: #000000;
   --toastify-font-family: 'Montserrat', sans-serif;
+}
+
+/* 🧩 Make the toast clip its children (keeps progress bar inside corners) */
+.Toastify__toast {
+  overflow: hidden !important; /* <— this is the key */
+  position: relative !important;
+}
+
+/* 🩶 Optional polish: progress bar inside, a bit inset */
+.Toastify__progress-bar {
+  bottom: 0 !important;
+  height: 4px !important;
+  border-radius: 10px !important; /* rounded only at bottom edges */
 }

@@ -4,12 +4,19 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth, db } from "@/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
-import { useAuth } from "@healthlane/auth";
+import { notify } from "@/components/ToastConfig";
+import { signOut, User } from "firebase/auth";
 
 export default function Page() {
   const router = useRouter();
-  const { logout } = useAuth();
+
   const [firstName, setFirstName] = useState<string>("");
+
+  const handleLogout = async () => {
+    notify.info("Signing you out...");
+    await signOut(auth);
+    router.push("/auth/login");
+  };
 
   useEffect(() => {
     const u = auth.currentUser;
@@ -34,9 +41,7 @@ export default function Page() {
       </p>
 
       <button
-        onClick={async () => {
-          await logout();
-        }}
+        onClick={handleLogout}
         className="text-sm px-3 py-2 rounded-md border hover:bg-gray-50"
       >
         Log out

@@ -7,15 +7,18 @@ import GoogleIcon from "@healthlane/ui/GoogleIcon";
 import { notify } from "@/components/ToastConfig";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { auth, db } from "@/firebaseConfig";
-import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+  sendEmailVerification,
+} from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
-// Where Firebase should send users after clicking the verification link
+// 🔗 Where Firebase should send users after clicking the verification link
 const actionCodeSettings = {
   url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/auth/login`,
   handleCodeInApp: false,
 };
-
 
 interface SignupFormProps {
   role: string;
@@ -74,21 +77,19 @@ export default function SignupForm({
       await sendEmailVerification(user, actionCodeSettings);
       notify.success("Account created! Please check your email to verify your account.");
 
-      // 3️⃣ Update profile display name
+      // 3️⃣ Update Firebase profile display name
       await updateProfile(user, {
         displayName: `${trimmedFirst} ${trimmedLast}`,
       });
 
-      // 4️⃣ Save Firestore record
-      // 4️⃣ Save Firestore record (to the correct collection)
+      // 4️⃣ Save Firestore record (role-specific)
       if (selectedRole === "doctor") {
         await setDoc(doc(db, "doctors", user.uid), {
           firstName: trimmedFirst,
           lastName: trimmedLast,
           email: normalizedEmail,
-          accountStatus: "Account Created",  // new doctor waiting for verification
           role: "doctor",
-          isVerified: false,
+          accountStatus: "Account Created", // waiting for onboarding verification
           createdAt: serverTimestamp(),
         });
       } else {
@@ -96,15 +97,14 @@ export default function SignupForm({
           firstName: trimmedFirst,
           lastName: trimmedLast,
           email: normalizedEmail,
-          role: selectedRole || "patient",
-          isVerified: false,
+          role: "patient",
+          status: "Pending", // purely for lifecycle tracking (not used in auth logic)
           createdAt: serverTimestamp(),
         });
       }
 
-
       // 5️⃣ Redirect after save
-      router.push("/auth/login");
+      router.push("/auth/login?verified=false");
 
       if (onClose) setTimeout(onClose, 500);
     } catch (error: any) {
@@ -131,7 +131,7 @@ export default function SignupForm({
     try {
       setLoading(true);
 
-      const user = await googleSignIn(role); // 👈 handled by your useAuth() hook
+      const user = await googleSignIn(role);
       if (!user) throw new Error("No user returned from Google Sign-In.");
 
       const { getDoc, doc, setDoc, serverTimestamp } = await import("firebase/firestore");
@@ -147,25 +147,25 @@ export default function SignupForm({
           lastName: user.displayName?.split(" ")[1] || "",
           email: user.email,
           role,
-          isVerified: true, // ✅ Google = verified
           createdAt: serverTimestamp(),
         };
 
         if (role === "doctor") {
           await setDoc(userRef, {
             ...baseData,
-            accountStatus: "Account Confirmed", // 👈 instantly confirmed
+            accountStatus: "Account Confirmed", // doctor auto-confirmed for email, onboarding still required
           });
         } else {
-          await setDoc(userRef, baseData);
+          await setDoc(userRef, {
+            ...baseData,
+            status: "Active", // Google = verified, skip pending state
+          });
         }
 
         notify.success(`Welcome, ${role === "doctor" ? "Doctor" : "Patient"}!`);
       }
 
-      // ✅ Redirect logic
       router.push(role === "doctor" ? "/dashboard/onboarding" : "/dashboard");
-
     } catch (err: any) {
       console.error(err);
       notify.error("Google sign-up failed. Please try again.");
@@ -174,16 +174,12 @@ export default function SignupForm({
     }
   };
 
-
-
   return (
     <form
       onSubmit={handleSignup}
       className="bg-white rounded-2xl w-full sm:w-[430px] max-w-[95vw] p-10 space-y-3"
     >
-      <h1 className="text-2xl font-semibold text-center text-gray-800">
-        {title}
-      </h1>
+      <h1 className="text-2xl font-semibold text-center text-gray-800">{title}</h1>
 
       {/* First Name */}
       <div className="relative">
@@ -285,11 +281,15 @@ export default function SignupForm({
           className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
           tabIndex={-1}
         >
-          {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+          {showPassword ? (
+            <EyeSlashIcon className="w-5 h-5" />
+          ) : (
+            <EyeIcon className="w-5 h-5" />
+          )}
         </button>
       </div>
 
-      {/* Role (optional) */}
+      {/* Role Dropdown (optional) */}
       {showRoleDropdown && (
         <div>
           <label
@@ -318,10 +318,11 @@ export default function SignupForm({
         <button
           type="submit"
           disabled={loading || !isFormValid}
-          className={`w-full flex items-center justify-center gap-2 ${loading || !isFormValid
-            ? "bg-[#1bae69]/50 cursor-not-allowed"
-            : "bg-[#1bae69] hover:bg-[#169a5f]"
-            } text-white py-3 rounded-2xl font-semibold tracking-tight shadow-[0_4px_14px_rgba(27,174,105,0.25)] transition-all duration-300 active:scale-[0.98]`}
+          className={`w-full flex items-center justify-center gap-2 ${
+            loading || !isFormValid
+              ? "bg-[#1bae69]/50 cursor-not-allowed"
+              : "bg-[#1bae69] hover:bg-[#169a5f]"
+          } text-white py-3 rounded-2xl font-semibold tracking-tight shadow-[0_4px_14px_rgba(27,174,105,0.25)] transition-all duration-300 active:scale-[0.98]`}
         >
           {loading ? (
             <>
@@ -351,15 +352,16 @@ export default function SignupForm({
             "Sign Up"
           )}
         </button>
-
       </div>
 
+      {/* Divider */}
       <div className="flex items-center gap-2">
         <hr className="flex-grow border-gray-300" />
         <span className="text-xs text-gray-400">or</span>
         <hr className="flex-grow border-gray-300" />
       </div>
 
+      {/* Google Signup */}
       <button
         type="button"
         onClick={handleGoogle}
@@ -380,7 +382,6 @@ export default function SignupForm({
           </a>
         </p>
       )}
-
     </form>
   );
 }
