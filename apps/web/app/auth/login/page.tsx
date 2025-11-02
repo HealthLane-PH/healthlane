@@ -2,7 +2,7 @@
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { auth, db } from "@/firebaseConfig";
 import { notify } from "@/components/ToastConfig";
@@ -28,7 +28,8 @@ import GoogleIcon from "@healthlane/ui/GoogleIcon";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "@healthlane/auth";
 
-export default function LoginPage() {
+// ⬇️ Your original component, unchanged, just renamed
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { googleSignIn } = useAuth();
@@ -81,7 +82,7 @@ export default function LoginPage() {
 
       // 4️⃣ If patient record exists, continue normal flow
       const patientDoc = querySnap.docs[0];
-      const patientData = patientDoc.data();
+      const patientData = patientDoc.data() as { status?: string };
 
       if (patientData.status === "Pending") {
         await updateDoc(doc(db, "patients", patientDoc.id), { status: "Active" });
@@ -113,7 +114,6 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
-
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -201,7 +201,6 @@ export default function LoginPage() {
     }
   };
 
-
   return (
     <div className="flex justify-center items-center min-h-screen flex-col gap-4">
       {showVerificationNotice && (
@@ -278,8 +277,9 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className={`w-full py-2 rounded-md text-white font-semibold ${loading ? "bg-gray-400" : "bg-[#1bae69] hover:bg-[#169a5f]"
-            } transition-colors`}
+          className={`w-full py-2 rounded-md text-white font-semibold ${
+            loading ? "bg-gray-400" : "bg-[#1bae69] hover:bg-[#169a5f]"
+          } transition-colors`}
         >
           {loading
             ? isResetMode
@@ -401,5 +401,14 @@ export default function LoginPage() {
         )}
       </form>
     </div>
+  );
+}
+
+// ⬇️ New default export that wraps your content in Suspense
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
   );
 }
