@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
@@ -9,7 +9,8 @@ import { auth, db } from "@/firebaseConfig";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
+import { notify } from "@/components/ToastConfig"; // ✅ Toast helper
 
 export default function StaffLoginPage() {
   const router = useRouter();
@@ -19,7 +20,10 @@ export default function StaffLoginPage() {
   const [loading, setLoading] = useState(false);
   const [isResetMode, setIsResetMode] = useState(false);
   const [success, setSuccess] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,11 +31,7 @@ export default function StaffLoginPage() {
     setLoading(true);
 
     try {
-      // 🔐 Step 1. Firebase login
-      const userCred = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCred.user;
-
-      // 🔍 Step 2. Check staff record
+      // 🔍 Step 1: Check Firestore for staff record
       const q = query(collection(db, "staff"), where("email", "==", email));
       const querySnap = await getDocs(q);
 
@@ -43,35 +43,37 @@ export default function StaffLoginPage() {
 
       const userData = querySnap.docs[0].data();
 
-      // 🚧 Step 3. Verify status
+      // 🚧 Step 2: Check if account is active before Firebase auth
       if (userData.status !== "Active") {
-        setError("Your account isn’t active yet. Please check your inbox for the invite link.");
+        setError(
+          "Your account isn’t active yet. Please check your inbox for the invite link."
+        );
         setLoading(false);
         return;
       }
 
-      // 🎯 Step 4. Role routing
+      // 🔐 Step 3: Proceed with Firebase Auth login
+      const userCred = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCred.user;
+
+      // 🎯 Step 4: Role-based routing
       if (["Owner", "Admin", "Staff"].includes(userData.role)) {
-        router.push("/staff/dashboard");
+        notify.success("You're logged in successfully!");
+        setTimeout(() => router.push("/staff/dashboard"), 1000);
       } else {
         setError("Access denied. This account is not a staff user.");
       }
+
     } catch (err: any) {
       setLoading(false);
       console.error("Login Error:", err);
 
-      const message = err?.message?.toLowerCase() || "";
       const code = err?.code || "";
+      const message = err?.message?.toLowerCase() || "";
 
       if (code === "auth/invalid-credential" || code === "auth/user-not-found") {
-        try {
-          const q = query(collection(db, "staff"), where("email", "==", email));
-          const querySnap = await getDocs(q);
-          if (querySnap.empty) setError("This user does not exist.");
-          else setError("Incorrect password. Please try again.");
-        } catch {
-          setError("This user does not exist.");
-        }
+        // Only show “incorrect password” if account *was active* and matched above
+        setError("Incorrect password. Please try again.");
       } else if (code === "auth/wrong-password") {
         setError("Incorrect password. Please try again.");
       } else if (code === "auth/too-many-requests") {
@@ -85,6 +87,7 @@ export default function StaffLoginPage() {
       setLoading(false);
     }
   };
+
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,7 +107,6 @@ export default function StaffLoginPage() {
       setLoading(false);
     }
   };
-
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
@@ -135,7 +137,6 @@ export default function StaffLoginPage() {
           </div>
         )}
 
-
         <form
           onSubmit={isResetMode ? handleForgotPassword : handleLogin}
           className="space-y-4"
@@ -160,15 +161,27 @@ export default function StaffLoginPage() {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Password
               </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg text-sm 
-                           bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 
-                           text-gray-900 dark:text-white focus:ring-2 focus:ring-green-600 outline-none"
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg text-sm 
+               bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 
+               text-gray-900 dark:text-white focus:ring-2 focus:ring-green-600 outline-none pr-10"
+                  required
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((p) => !p)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+
             </div>
           )}
 

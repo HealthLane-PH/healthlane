@@ -37,5 +37,19 @@ module.exports = {
       },
     },
   },
+   safelist: [
+    'bg-[#E8F8EF]', // success
+    'bg-[#FFF8E5]', // warning
+    'bg-[#FDECEC]', // error
+    'bg-[#EAF4FF]', // info
+    'border-[#1BAE69]',
+    'border-[#D32F2F]',
+    'border-[#FFB400]',
+    'border-[#0081BF]',
+    'text-[#1BAE69]',
+    'text-[#D32F2F]',
+    'text-[#B68900]',
+    'text-[#0067B8]',
+  ],
   plugins: [require("@tailwindcss/typography")],
 };

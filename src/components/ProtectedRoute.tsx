@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { auth } from "@/firebaseConfig";
+import { auth } from "../../src/firebaseConfig";
 import { User } from "firebase/auth";
 
 

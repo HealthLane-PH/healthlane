@@ -1,6 +1,7 @@
 import "./globals.css";
+import "react-toastify/dist/ReactToastify.css";
 import { Montserrat } from "next/font/google";
-import { ToastConfig } from "@/components/ToastConfig";
+import RootWrapper from "./RootWrapper";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -9,8 +10,8 @@ const montserrat = Montserrat({
 });
 
 export const metadata = {
-  title: "HealthLane Portal",
-  description: "Staff portal for HealthLane",
+  title: "HealthLane Staff Portal",
+  description: "Manage clinics, staff, and patients seamlessly",
 };
 
 export default function RootLayout({
@@ -20,8 +21,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${montserrat.variable} font-sans`}>
-      <body>{children}</body>
-      <ToastConfig />
+      <body className="bg-gray-900 text-white">
+        <RootWrapper>{children}</RootWrapper>
+      </body>
     </html>
   );
 }

@@ -358,7 +358,7 @@ export default function StaffPage() {
             placeholder="Search by name, email, or role..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full border border-gray-200 rounded-lg px-4 py-3 pl-10 text-sm focus:ring-2 focus:ring-primary focus:outline-none bg-gray-50 focus:bg-white transition"
+            className="text-gray-900 dark:text-gray-900 w-full border border-gray-200 rounded-lg px-4 py-3 pl-10 text-sm focus:ring-2 focus:ring-primary focus:outline-none bg-gray-50 focus:bg-white transition"
           />
           <svg
             xmlns="http://www.w3.org/2000/svg"

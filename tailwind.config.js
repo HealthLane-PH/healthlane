@@ -8,7 +8,7 @@ module.exports = {
   darkMode: 'media',
   theme: {
     extend: {
-     colors: {
+      colors: {
         primary: "#1bae69",
         primaryDark: "#169a5f",
         grayDark: "#1B1B1B",

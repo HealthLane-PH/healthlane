@@ -25,73 +25,43 @@ export const ToastConfig = () => (
     theme="light"
     toastStyle={{
       display: "flex",
-      alignItems: "center",          // ✅ vertical centering
+      alignItems: "center",
       gap: "8px",
       borderRadius: "10px",
       fontSize: "0.9rem",
-      fontWeight: 400,               // ✅ lighter text
+      fontWeight: 400,
       padding: "18px 23px",
       boxShadow: "0 4px 18px rgba(0,0,0,0.08)",
       border: "1px solid #E5E5E5",
       lineHeight: "1.4",
+      boxSizing: "border-box",      // ✅ ensures children respect padding & radius
+      overflow: "hidden",           // ✅ clips progress bar nicely without freezing
+      position: "relative",         // ✅ anchors the progress bar correctly
     }}
     icon={({ type }) => {
-      // ✅ custom minimal icons that stay vertically aligned
       const size = 18;
       switch (type) {
         case "success":
           return (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width={size}
-              height={size}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="#1BAE69"
-              strokeWidth="2"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} fill="none" viewBox="0 0 24 24" stroke="#1BAE69" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
           );
         case "warning":
           return (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width={size}
-              height={size}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="#B68900"
-              strokeWidth="2"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} fill="none" viewBox="0 0 24 24" stroke="#B68900" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M10.29 3.86l-8.48 14.72A1 1 0 002.76 21h18.48a1 1 0 00.85-1.42L13.6 3.86a1 1 0 00-1.7 0z" />
             </svg>
           );
         case "error":
           return (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width={size}
-              height={size}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="#D32F2F"
-              strokeWidth="2"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} fill="none" viewBox="0 0 24 24" stroke="#D32F2F" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           );
         case "info":
           return (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width={size}
-              height={size}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="#0067B8"
-              strokeWidth="2"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} fill="none" viewBox="0 0 24 24" stroke="#0067B8" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
             </svg>
           );
